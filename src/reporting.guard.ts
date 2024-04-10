@@ -1,16 +1,12 @@
-import { CanActivate, Inject, Injectable } from '@nestjs/common';
-import { AsyncLocalStorage } from 'async_hooks';
-import { Context } from './reporting.module';
+import { CanActivate, Injectable } from '@nestjs/common';
+import { BugsnagReportingService } from './bugsnag.reporting.service';
 
 @Injectable()
 export class ReportingGuard implements CanActivate {
-  constructor(
-    @Inject('REPORTING_ASYNC_LOCAL_STORAGE')
-    private readonly asyncLocalStorage: AsyncLocalStorage<Context>,
-  ) {}
+  constructor(private readonly reportingService: BugsnagReportingService) {}
 
   canActivate(): boolean {
-    this.asyncLocalStorage.getStore().counter.value++;
+    this.reportingService.addMetadata('user', { id: 1, name: 'John Doe' });
     return true;
   }
 }

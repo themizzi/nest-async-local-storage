@@ -2,24 +2,19 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { AsyncLocalStorage } from 'async_hooks';
-import { Context } from './reporting.module';
+import { BugsnagReportingService } from './bugsnag.reporting.service';
 
 @Catch()
 @Injectable()
 export class ReportingFilter implements ExceptionFilter {
-  constructor(
-    @Inject('REPORTING_ASYNC_LOCAL_STORAGE')
-    private readonly asyncLocalStorage: AsyncLocalStorage<Context>,
-  ) {}
+  constructor(private readonly reportingService: BugsnagReportingService) {}
 
   catch(exception: any, host: ArgumentsHost) {
     const logger = new Logger();
-    logger.log('counter', this.asyncLocalStorage.getStore().counter.value);
+    logger.log('counter', this.reportingService.notify(exception));
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
